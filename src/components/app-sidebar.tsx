@@ -12,6 +12,7 @@ import {
   Shield,
   AlertTriangle,
   Users,
+  UsersRound,
 } from "lucide-react"
 import Link from "next/link"
 import { Logo } from "@/components/logo"
@@ -62,6 +63,11 @@ const data = {
           title: "Calendar",
           url: "/calendar",
           icon: Calendar,
+        },
+        {
+          title: "Customers",
+          url: "/customers",
+          icon: UsersRound,
         },
       ],
     },
