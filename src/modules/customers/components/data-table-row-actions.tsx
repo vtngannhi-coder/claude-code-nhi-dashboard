@@ -2,14 +2,7 @@
 
 import * as React from "react"
 import type { Row } from "@tanstack/react-table"
-import {
-  Check,
-  Loader2,
-  MoreHorizontal,
-  Pencil,
-  Trash2,
-  X,
-} from "lucide-react"
+import { Loader2, MoreHorizontal, Pencil, Trash2 } from "lucide-react"
 
 import {
   AlertDialog,
@@ -37,21 +30,13 @@ import {
 
 interface DataTableRowActionsProps<TData> {
   row: Row<TData>
-  isEditing: boolean
-  isSaving: boolean
-  onStartEdit?: () => void
-  onCancelEdit?: () => void
-  onSaveEdit?: () => void | Promise<void>
+  onEditCustomer?: (customer: Customer) => void
   onDeleteCustomer?: (customerId: string) => void | Promise<void>
 }
 
 export function DataTableRowActions<TData>({
   row,
-  isEditing,
-  isSaving,
-  onStartEdit,
-  onCancelEdit,
-  onSaveEdit,
+  onEditCustomer,
   onDeleteCustomer,
 }: DataTableRowActionsProps<TData>) {
   const parsed = customerSchema.safeParse(row.original)
@@ -90,38 +75,6 @@ export function DataTableRowActions<TData>({
     }
   }
 
-  // Inline edit mode: show save / cancel buttons instead of the dropdown
-  if (isEditing) {
-    return (
-      <div className="flex items-center justify-end gap-1">
-        <Button
-          size="sm"
-          variant="default"
-          className="h-8 cursor-pointer"
-          onClick={() => onSaveEdit?.()}
-          disabled={isSaving}
-        >
-          {isSaving ? (
-            <Loader2 className="h-4 w-4 animate-spin" />
-          ) : (
-            <Check className="h-4 w-4" />
-          )}
-          <span className="sr-only">Save</span>
-        </Button>
-        <Button
-          size="sm"
-          variant="outline"
-          className="h-8 cursor-pointer"
-          onClick={() => onCancelEdit?.()}
-          disabled={isSaving}
-        >
-          <X className="h-4 w-4" />
-          <span className="sr-only">Cancel</span>
-        </Button>
-      </div>
-    )
-  }
-
   return (
     <AlertDialog
       open={deleteOpen}
@@ -143,7 +96,7 @@ export function DataTableRowActions<TData>({
         <DropdownMenuContent align="end" className="w-[160px]">
           <DropdownMenuItem
             className="cursor-pointer"
-            onClick={() => onStartEdit?.()}
+            onClick={() => onEditCustomer?.(customer)}
           >
             <Pencil className="mr-2 h-4 w-4" />
             Edit
