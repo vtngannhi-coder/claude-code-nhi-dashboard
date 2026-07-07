@@ -1,6 +1,10 @@
 import { FirebaseApp, getApp, getApps, initializeApp } from "firebase/app"
-import { Auth, getAuth } from "firebase/auth"
-import { Firestore, getFirestore } from "firebase/firestore"
+import { Auth, connectAuthEmulator, getAuth } from "firebase/auth"
+import {
+  Firestore,
+  connectFirestoreEmulator,
+  getFirestore,
+} from "firebase/firestore"
 import { FirebaseStorage, getStorage } from "firebase/storage"
 
 const firebaseConfig = {
@@ -46,3 +50,19 @@ export const app: FirebaseApp = getApps().length
 export const auth: Auth = getAuth(app)
 export const db: Firestore = getFirestore(app)
 export const storage: FirebaseStorage = getStorage(app)
+
+// Connect to local emulators when running in development
+// Set NEXT_PUBLIC_USE_FIREBASE_EMULATOR=true in .env.local
+const useEmulator = process.env.NEXT_PUBLIC_USE_FIREBASE_EMULATOR === "true"
+
+if (useEmulator && typeof window !== "undefined") {
+  const host = process.env.NEXT_PUBLIC_FIREBASE_EMULATOR_HOST || "127.0.0.1"
+
+  try {
+    connectFirestoreEmulator(db, host, 8080)
+    connectAuthEmulator(auth, `http://${host}:9099`, { disableWarnings: true })
+    console.info(`[Firebase] Connected to local emulators at ${host}`)
+  } catch (err) {
+    console.warn("[Firebase] Emulator connection warning:", err)
+  }
+}
