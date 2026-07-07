@@ -27,13 +27,11 @@ import {
 
 import { DataTablePagination } from "./data-table-pagination"
 import { DataTableToolbar } from "./data-table-toolbar"
-import type { CustomerTableMeta } from "./columns"
 import type { Customer } from "@/modules/customers/services/types/customer-types"
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
   data: TData[]
-  meta: CustomerTableMeta
   onSeedCustomers?: () => void | Promise<void>
   isSeedingCustomers?: boolean
   onAddCustomer?: (customer: Customer) => void | Promise<void>
@@ -42,7 +40,6 @@ interface DataTableProps<TData, TValue> {
 export function DataTable<TData extends Customer, TValue>({
   columns,
   data,
-  meta,
   onSeedCustomers,
   isSeedingCustomers,
   onAddCustomer,
@@ -64,7 +61,6 @@ export function DataTable<TData extends Customer, TValue>({
       rowSelection,
       columnFilters,
     },
-    meta,
     enableRowSelection: true,
     onRowSelectionChange: setRowSelection,
     onSortingChange: setSorting,
