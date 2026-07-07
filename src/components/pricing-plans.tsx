@@ -49,21 +49,6 @@ const defaultPlans: PricingPlan[] = [
     ],
     popular: true,
   },
-  {
-    id: 'enterprise',
-    name: 'Enterprise',
-    description: 'For high-volume stores',
-    price: '$199',
-    frequency: '/month',
-    features: [
-      'Unlimited products',
-      'Advanced reporting',
-      '24/7 priority support',
-      'Custom integrations',
-      'Dedicated account manager',
-      'Advanced security features',
-    ],
-  },
 ]
 
 export function PricingPlans({ 
