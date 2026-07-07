@@ -124,11 +124,11 @@ export function AddCustomerModal({
             className="cursor-pointer"
           >
             <Plus className="w-4 h-4" />
-            Add Customer
+            <span className="hidden sm:inline ml-1">Add Customer</span>
           </Button>
         )}
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
+      <DialogContent className="w-full h-full max-h-screen rounded-none p-5 sm:max-w-[600px] sm:max-h-[90vh] sm:rounded-lg sm:p-6 overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Add New Customer</DialogTitle>
           <DialogDescription>

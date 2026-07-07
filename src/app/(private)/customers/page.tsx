@@ -117,20 +117,8 @@ export default function CustomersPage() {
         </p>
       </div>
 
-      {/* Mobile view placeholder */}
-      <div className="md:hidden px-4 md:px-6">
-        <div className="flex items-center justify-center h-96 border rounded-lg bg-muted/20">
-          <div className="text-center p-8">
-            <h3 className="text-lg font-semibold mb-2">Customers Dashboard</h3>
-            <p className="text-muted-foreground">
-              Please use a larger screen to view the full customers interface.
-            </p>
-          </div>
-        </div>
-      </div>
-
-      {/* Desktop view */}
-      <div className="hidden h-full flex-1 flex-col space-y-6 px-4 md:px-6 md:flex">
+      {/* Content - visible on all screen sizes */}
+      <div className="flex flex-1 flex-col space-y-6 px-4 md:px-6">
         <CustomerStatCards
           total={stats.total}
           education={stats.education}
@@ -139,14 +127,14 @@ export default function CustomersPage() {
         />
 
         <Card>
-          <CardHeader>
-            <CardTitle>Customer Management</CardTitle>
-            <CardDescription>
+          <CardHeader className="p-4 md:p-6">
+            <CardTitle className="text-lg md:text-xl">Customer Management</CardTitle>
+            <CardDescription className="hidden md:block">
               Click a column header to sort (asc → desc → none). Click Edit in
               the actions menu to update a customer in a dialog.
             </CardDescription>
           </CardHeader>
-          <CardContent>
+          <CardContent className="p-0 md:p-6">
             <DataTable
               data={customers}
               columns={customerColumns}

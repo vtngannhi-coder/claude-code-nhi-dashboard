@@ -62,7 +62,7 @@ export function DataTableToolbar<TData>({
     | undefined
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 px-4 md:px-0">
       {/* Filter Section */}
       <div className="space-y-3">
         <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
@@ -127,27 +127,27 @@ export function DataTableToolbar<TData>({
       </div>
 
       {/* Search and Actions Section */}
-      <div className="flex items-center justify-between">
-        <div className="flex flex-1 items-center space-x-2">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-1 items-center gap-2">
           <Input
             placeholder="Search by name..."
             value={(table.getColumn("name")?.getFilterValue() as string) ?? ""}
             onChange={(event) =>
               table.getColumn("name")?.setFilterValue(event.target.value)
             }
-            className="w-[200px] lg:w-[300px] cursor-text"
+            className="w-full sm:w-[200px] lg:w-[300px] cursor-text"
           />
           <Button
             variant="outline"
             onClick={() => table.resetColumnFilters()}
-            className="px-3 cursor-pointer"
+            className="px-3 cursor-pointer shrink-0"
             disabled={!isFiltered}
           >
             <RefreshCcw className="h-4 w-4" />
-            <span className="hidden lg:block">Reset Filters</span>
+            <span className="hidden lg:inline ml-1">Reset Filters</span>
           </Button>
         </div>
-        <div className="flex items-center space-x-2">
+        <div className="flex items-center gap-2 shrink-0">
           <Button
             variant="outline"
             size="sm"
@@ -156,7 +156,7 @@ export function DataTableToolbar<TData>({
             disabled={!onSeedCustomers || isSeedingCustomers}
           >
             <Database className="h-4 w-4" />
-            <span className="hidden lg:block">
+            <span className="hidden sm:inline ml-1">
               {isSeedingCustomers ? "Seeding..." : "Seed Data"}
             </span>
           </Button>

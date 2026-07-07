@@ -130,7 +130,7 @@ export function EditCustomerModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
+      <DialogContent className="w-full h-full max-h-screen rounded-none p-5 sm:max-w-[600px] sm:max-h-[90vh] sm:rounded-lg sm:p-6 overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Pencil className="h-4 w-4" />

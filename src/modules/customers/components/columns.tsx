@@ -53,7 +53,7 @@ export function getCustomerColumns({
       ),
       cell: ({ row }) => (
         <div className="flex space-x-2">
-          <span className="max-w-[260px] truncate font-medium">
+          <span className="max-w-[160px] md:max-w-[260px] truncate font-medium">
             {row.getValue("name")}
           </span>
         </div>
@@ -93,7 +93,7 @@ export function getCustomerColumns({
         return (
           <a
             href={`mailto:${email}`}
-            className="max-w-[260px] truncate font-medium text-blue-600 hover:underline dark:text-blue-400"
+            className="max-w-[180px] md:max-w-[260px] truncate block font-medium text-blue-600 hover:underline dark:text-blue-400"
           >
             {email}
           </a>
@@ -102,11 +102,11 @@ export function getCustomerColumns({
     },
     {
       accessorKey: "phone",
-      header: () => <div className="text-sm">Phone</div>,
+      header: () => <span className="text-sm sr-only md:not-sr-only">Phone</span>,
       cell: ({ row }) => {
         const phone = row.getValue("phone") as string | undefined
         return (
-          <span className="text-muted-foreground text-sm">
+          <span className="text-muted-foreground text-sm hidden md:inline">
             {phone || "—"}
           </span>
         )
@@ -115,12 +115,12 @@ export function getCustomerColumns({
     },
     {
       accessorKey: "gender",
-      header: () => <div className="text-sm">Gender</div>,
+      header: () => <span className="text-sm sr-only md:not-sr-only">Gender</span>,
       cell: ({ row }) => {
         const gender = genders.find((g) => g.value === row.getValue("gender"))
         if (!gender) return null
         return (
-          <div className="flex w-[90px] items-center">
+          <div className="hidden md:flex w-[90px] items-center">
             <span className="text-sm">{gender.label}</span>
           </div>
         )
