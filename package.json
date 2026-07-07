@@ -4,6 +4,8 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "dev:emulator": "firebase emulators:start --project=claude-code-nhi & sleep 3 && next dev",
+    "emulator": "firebase emulators:start --project=claude-code-nhi",
     "build": "next build",
     "start": "next start",
     "lint": "next lint"
