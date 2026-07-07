@@ -12,6 +12,7 @@ import {
 import { getCustomerColumns } from "@/modules/customers/components/columns"
 import { CustomerStatCards } from "@/modules/customers/components/customer-stat-cards"
 import { DataTable } from "@/modules/customers/components/data-table"
+import { EditCustomerModal } from "@/modules/customers/components/edit-customer-modal"
 import {
   createCustomer,
   deleteCustomer,
@@ -27,10 +28,9 @@ export default function CustomersPage() {
   const [loading, setLoading] = useState(true)
   const [isSeedingCustomers, setIsSeedingCustomers] = useState(false)
 
-  // Inline edit state
-  const [editingCustomerId, setEditingCustomerId] = useState<string | null>(null)
-  const [editDraft, setEditDraft] = useState<Customer | null>(null)
-  const [isSavingEdit, setIsSavingEdit] = useState(false)
+  // Modal edit state
+  const [editingCustomer, setEditingCustomer] = useState<Customer | null>(null)
+  const [editOpen, setEditOpen] = useState(false)
 
   const refreshCustomers = useCallback(async () => {
     const customerList = await getCustomers()
@@ -83,59 +83,18 @@ export default function CustomersPage() {
     }
   }, [])
 
-  const handleEditDraftChange = useCallback((partial: Partial<Customer>) => {
-    setEditDraft((prev) => (prev ? { ...prev, ...partial } : null))
+  const handleEditCustomer = useCallback((customer: Customer) => {
+    setEditingCustomer(customer)
+    setEditOpen(true)
   }, [])
-
-  const handleStartEdit = useCallback((customer: Customer) => {
-    setEditingCustomerId(customer.id)
-    setEditDraft(customer)
-  }, [])
-
-  const handleCancelEdit = useCallback(() => {
-    setEditingCustomerId(null)
-    setEditDraft(null)
-  }, [])
-
-  const handleSaveEdit = useCallback(async () => {
-    if (!editDraft) return
-
-    try {
-      setIsSavingEdit(true)
-      await handleUpdateCustomer(editDraft)
-      setEditingCustomerId(null)
-      setEditDraft(null)
-    } catch (error) {
-      console.error("Failed to save edit:", error)
-    } finally {
-      setIsSavingEdit(false)
-    }
-  }, [editDraft, handleUpdateCustomer])
-
-  const meta = useMemo(
-    () => ({
-      editingCustomerId,
-      editDraft,
-      onEditDraftChange: handleEditDraftChange,
-      onStartEdit: handleStartEdit,
-      onCancelEdit: handleCancelEdit,
-      onSaveEdit: handleSaveEdit,
-      isSavingEdit,
-    }),
-    [
-      editingCustomerId,
-      editDraft,
-      handleEditDraftChange,
-      handleStartEdit,
-      handleCancelEdit,
-      handleSaveEdit,
-      isSavingEdit,
-    ]
-  )
 
   const customerColumns = useMemo(
-    () => getCustomerColumns({ onDeleteCustomer: handleDeleteCustomer }),
-    [handleDeleteCustomer]
+    () =>
+      getCustomerColumns({
+        onDeleteCustomer: handleDeleteCustomer,
+        onEditCustomer: handleEditCustomer,
+      }),
+    [handleDeleteCustomer, handleEditCustomer]
   )
 
   const stats = getCustomerStats(customers)
@@ -183,15 +142,14 @@ export default function CustomersPage() {
           <CardHeader>
             <CardTitle>Customer Management</CardTitle>
             <CardDescription>
-              Click a column header to sort (asc → desc → none). Inline edit by
-              clicking Edit in the actions menu.
+              Click a column header to sort (asc → desc → none). Click Edit in
+              the actions menu to update a customer in a dialog.
             </CardDescription>
           </CardHeader>
           <CardContent>
             <DataTable
               data={customers}
               columns={customerColumns}
-              meta={meta}
               onSeedCustomers={handleSeedCustomers}
               isSeedingCustomers={isSeedingCustomers}
               onAddCustomer={handleAddCustomer}
@@ -199,6 +157,13 @@ export default function CustomersPage() {
           </CardContent>
         </Card>
       </div>
+
+      <EditCustomerModal
+        customer={editingCustomer}
+        open={editOpen}
+        onOpenChange={setEditOpen}
+        onSave={handleUpdateCustomer}
+      />
     </>
   )
 }
