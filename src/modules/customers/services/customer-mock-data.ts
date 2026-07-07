@@ -11,11 +11,11 @@ import {
 import { customerSchema } from "./types/customer-types"
 
 export const categories = [
-  { value: "education", label: "Education", icon: GraduationCap },
-  { value: "sales", label: "Sales", icon: Briefcase },
-  { value: "marketing", label: "Marketing", icon: Megaphone },
-  { value: "worker", label: "Worker", icon: HardHat },
-  { value: "other", label: "Other", icon: Circle },
+  { value: "education", label: "Education", icon: GraduationCap, color: "bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300" },
+  { value: "sales", label: "Sales", icon: Briefcase, color: "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300" },
+  { value: "marketing", label: "Marketing", icon: Megaphone, color: "bg-violet-100 text-violet-700 dark:bg-violet-900/40 dark:text-violet-300" },
+  { value: "worker", label: "Worker", icon: HardHat, color: "bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300" },
+  { value: "other", label: "Other", icon: Circle, color: "bg-slate-100 text-slate-600 dark:bg-slate-800/60 dark:text-slate-300" },
 ]
 
 export const genders = [
