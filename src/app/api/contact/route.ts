@@ -49,7 +49,7 @@ export async function POST(request: NextRequest) {
 
     const { fullName, email, phoneNumber, serviceName } = parsed.data
 
-    await addDoc(collection(db, "leads"), {
+    await addDoc(collection(db, "customers"), {
       fullName,
       email,
       phoneNumber,
@@ -65,7 +65,7 @@ export async function POST(request: NextRequest) {
       { status: 201, headers: CORS_HEADERS }
     )
   } catch (error) {
-    console.error("[Customers API Error]", error)
+    console.error("[Contact API Error]", error)
 
     return NextResponse.json(
       {
