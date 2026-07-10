@@ -58,7 +58,7 @@ export function DataTableRowActions<TData>({
   }
 
   async function handleConfirmDelete() {
-    if (confirmText !== customer.name) return
+    if (confirmText !== customer.fullName) return
 
     try {
       setIsDeleting(true)
@@ -68,7 +68,7 @@ export function DataTableRowActions<TData>({
       resetDeleteState()
     } catch (error) {
       setDeleteError(
-        error instanceof Error ? error.message : "Failed to delete customer"
+        error instanceof Error ? error.message : "Xóa khách hàng thất bại"
       )
     } finally {
       setIsDeleting(false)
@@ -99,7 +99,7 @@ export function DataTableRowActions<TData>({
             onClick={() => onEditCustomer?.(customer)}
           >
             <Pencil className="mr-2 h-4 w-4" />
-            Edit
+            Sửa
           </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem
@@ -110,7 +110,7 @@ export function DataTableRowActions<TData>({
             }}
           >
             <Trash2 className="mr-2 h-4 w-4" />
-            Delete
+            Xóa
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
@@ -126,12 +126,12 @@ export function DataTableRowActions<TData>({
               </p>
               <p className="text-sm text-muted-foreground">
                 Nhập{" "}
-                <strong className="text-foreground">{customer.name}</strong>{" "}
+                <strong className="text-foreground">{customer.fullName}</strong>{" "}
                 để xác nhận:
               </p>
               <Input
                 autoFocus
-                placeholder={customer.name}
+                placeholder={customer.fullName}
                 value={confirmText}
                 onChange={(event) => setConfirmText(event.target.value)}
                 disabled={isDeleting}
@@ -156,11 +156,11 @@ export function DataTableRowActions<TData>({
               event.preventDefault()
               handleConfirmDelete()
             }}
-            disabled={isDeleting || confirmText !== customer.name}
+            disabled={isDeleting || confirmText !== customer.fullName}
             className="bg-destructive text-destructive-foreground hover:bg-destructive/90 cursor-pointer"
           >
             {isDeleting && (
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              <Loader2 className="mr-2 h-4 h-4 animate-spin" />
             )}
             Xóa
           </AlertDialogAction>

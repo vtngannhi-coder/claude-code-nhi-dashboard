@@ -16,7 +16,6 @@ import {
 } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
 import {
   Select,
   SelectContent,
@@ -24,39 +23,31 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import {
-  categories,
-  genders,
-} from "@/modules/customers/services/customer-mock-data"
+import { serviceOptions } from "@/modules/customers/services/customer-mock-data"
 import type { Customer } from "@/modules/customers/services/types/customer-types"
 
-const customerFormSchema = z.object({
-  name: z.string().min(1, "Tên khách hàng là bắt buộc"),
-  category: z.enum(["education", "sales", "marketing", "worker", "other"], {
-    message: "Vui lòng chọn danh mục",
-  }),
+const addFormSchema = z.object({
+  fullName: z.string().min(2, "Họ và tên phải có ít nhất 2 ký tự"),
   email: z.email("Email không hợp lệ"),
-  phone: z.string().optional().default(""),
-  gender: z.enum(["male", "female"]).optional().default("male"),
-  address: z.string().optional().default(""),
-  notes: z.string().optional().default(""),
+  phoneNumber: z
+    .string()
+    .min(10, "Số điện thoại phải có ít nhất 10 ký tự")
+    .max(20, "Số điện thoại không được vượt quá 20 ký tự"),
+  serviceName: z.string().min(1, "Vui lòng chọn dịch vụ"),
 })
 
-type CustomerFormData = z.infer<typeof customerFormSchema>
+type AddFormData = z.infer<typeof addFormSchema>
 
 interface AddCustomerModalProps {
   onAddCustomer?: (customer: Customer) => void | Promise<void>
   trigger?: React.ReactNode
 }
 
-const initialFormData: CustomerFormData = {
-  name: "",
-  category: "education",
+const initialFormData: AddFormData = {
+  fullName: "",
   email: "",
-  phone: "",
-  gender: "male",
-  address: "",
-  notes: "",
+  phoneNumber: "",
+  serviceName: "",
 }
 
 export function AddCustomerModal({
@@ -64,11 +55,9 @@ export function AddCustomerModal({
   trigger,
 }: AddCustomerModalProps) {
   const [open, setOpen] = useState(false)
-  const [formData, setFormData] = useState<CustomerFormData>(initialFormData)
+  const [formData, setFormData] = useState<AddFormData>(initialFormData)
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [isSubmitting, setIsSubmitting] = useState(false)
-
-  const generateCustomerId = () => `CUS-${Date.now()}`
 
   const resetForm = () => {
     setFormData(initialFormData)
@@ -80,7 +69,7 @@ export function AddCustomerModal({
     setIsSubmitting(true)
 
     try {
-      const parsed = customerFormSchema.safeParse(formData)
+      const parsed = addFormSchema.safeParse(formData)
       if (!parsed.success) {
         const newErrors: Record<string, string> = {}
         parsed.error.issues.forEach((issue) => {
@@ -92,7 +81,7 @@ export function AddCustomerModal({
       }
 
       const newCustomer: Customer = {
-        id: generateCustomerId(),
+        id: `CUS-${Date.now()}`,
         ...parsed.data,
       }
 
@@ -124,15 +113,15 @@ export function AddCustomerModal({
             className="cursor-pointer"
           >
             <Plus className="w-4 h-4" />
-            <span className="hidden sm:inline ml-1">Add Customer</span>
+            <span className="hidden sm:inline ml-1">Thêm khách hàng</span>
           </Button>
         )}
       </DialogTrigger>
       <DialogContent className="w-full h-full max-h-screen rounded-none p-5 sm:max-w-[600px] sm:max-h-[90vh] sm:rounded-lg sm:p-6 overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Add New Customer</DialogTitle>
+          <DialogTitle>Thêm khách hàng mới</DialogTitle>
           <DialogDescription>
-            Thêm khách hàng mới vào hệ thống. Các trường có dấu * là bắt buộc.
+            Nhập thông tin khách hàng mới. Các trường có dấu * là bắt buộc.
           </DialogDescription>
         </DialogHeader>
 
@@ -141,69 +130,33 @@ export function AddCustomerModal({
             <p className="text-sm text-destructive">{errors.root}</p>
           ) : null}
 
-          {/* Name */}
+          {/* Họ và tên */}
           <div className="space-y-2">
-            <Label htmlFor="name">
-              Tên khách hàng <span className="text-destructive">*</span>
+            <Label htmlFor="add-fullName">
+              Họ và tên <span className="text-destructive">*</span>
             </Label>
             <Input
-              id="name"
-              placeholder="Nguyễn Văn A"
-              value={formData.name}
+              id="add-fullName"
+              placeholder="Ngân Nhi"
+              value={formData.fullName}
               onChange={(e) =>
-                setFormData((prev) => ({ ...prev, name: e.target.value }))
+                setFormData((prev) => ({ ...prev, fullName: e.target.value }))
               }
-              className={errors.name ? "border-destructive" : ""}
+              className={errors.fullName ? "border-destructive" : ""}
             />
-            {errors.name ? (
-              <p className="text-sm text-destructive">{errors.name}</p>
+            {errors.fullName ? (
+              <p className="text-sm text-destructive">{errors.fullName}</p>
             ) : null}
           </div>
 
-          {/* Category + Email */}
+          {/* Email + SĐT */}
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             <div className="space-y-2">
-              <Label htmlFor="category">
-                Danh mục <span className="text-destructive">*</span>
-              </Label>
-              <Select
-                value={formData.category}
-                onValueChange={(value) =>
-                  setFormData((prev) => ({
-                    ...prev,
-                    category: value as CustomerFormData["category"],
-                  }))
-                }
-              >
-                <SelectTrigger
-                  className={`w-full ${errors.category ? "border-destructive" : ""}`}
-                >
-                  <SelectValue placeholder="Chọn danh mục" />
-                </SelectTrigger>
-                <SelectContent>
-                  {categories.map((c) => (
-                    <SelectItem key={c.value} value={c.value}>
-                      <div className="flex items-center">
-                        {c.icon && (
-                          <c.icon className="mr-2 h-4 w-4 text-muted-foreground" />
-                        )}
-                        {c.label}
-                      </div>
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              {errors.category ? (
-                <p className="text-sm text-destructive">{errors.category}</p>
-              ) : null}
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="email">
+              <Label htmlFor="add-email">
                 Email <span className="text-destructive">*</span>
               </Label>
               <Input
-                id="email"
+                id="add-email"
                 type="email"
                 placeholder="email@example.com"
                 value={formData.email}
@@ -216,72 +169,54 @@ export function AddCustomerModal({
                 <p className="text-sm text-destructive">{errors.email}</p>
               ) : null}
             </div>
-          </div>
 
-          {/* Phone + Gender */}
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             <div className="space-y-2">
-              <Label htmlFor="phone">Số điện thoại</Label>
+              <Label htmlFor="add-phoneNumber">
+                Số điện thoại <span className="text-destructive">*</span>
+              </Label>
               <Input
-                id="phone"
+                id="add-phoneNumber"
                 placeholder="0901234567"
-                value={formData.phone ?? ""}
+                value={formData.phoneNumber}
                 onChange={(e) =>
-                  setFormData((prev) => ({ ...prev, phone: e.target.value }))
+                  setFormData((prev) => ({ ...prev, phoneNumber: e.target.value }))
                 }
+                className={errors.phoneNumber ? "border-destructive" : ""}
               />
+              {errors.phoneNumber ? (
+                <p className="text-sm text-destructive">{errors.phoneNumber}</p>
+              ) : null}
             </div>
+          </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="gender">Giới tính</Label>
-              <Select
-                value={formData.gender ?? "male"}
-                onValueChange={(value) =>
-                  setFormData((prev) => ({
-                    ...prev,
-                    gender: value as CustomerFormData["gender"],
-                  }))
-                }
+          {/* Dịch vụ */}
+          <div className="space-y-2">
+            <Label htmlFor="add-serviceName">
+              Dịch vụ quan tâm <span className="text-destructive">*</span>
+            </Label>
+            <Select
+              value={formData.serviceName}
+              onValueChange={(value) =>
+                setFormData((prev) => ({ ...prev, serviceName: value }))
+              }
+            >
+              <SelectTrigger
+                id="add-serviceName"
+                className={`w-full ${errors.serviceName ? "border-destructive" : ""}`}
               >
-                <SelectTrigger className="w-full">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {genders.map((g) => (
-                    <SelectItem key={g.value} value={g.value}>
-                      {g.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-
-          {/* Address */}
-          <div className="space-y-2">
-            <Label htmlFor="address">Địa chỉ</Label>
-            <Input
-              id="address"
-              placeholder="123 Lê Lợi, Quận 1, TP.HCM"
-              value={formData.address ?? ""}
-              onChange={(e) =>
-                setFormData((prev) => ({ ...prev, address: e.target.value }))
-              }
-            />
-          </div>
-
-          {/* Notes */}
-          <div className="space-y-2">
-            <Label htmlFor="notes">Ghi chú</Label>
-            <Textarea
-              id="notes"
-              placeholder="Thông tin thêm về khách hàng..."
-              value={formData.notes ?? ""}
-              onChange={(e) =>
-                setFormData((prev) => ({ ...prev, notes: e.target.value }))
-              }
-              rows={3}
-            />
+                <SelectValue placeholder="Chọn dịch vụ" />
+              </SelectTrigger>
+              <SelectContent>
+                {serviceOptions.map((s) => (
+                  <SelectItem key={s.value} value={s.value}>
+                    {s.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            {errors.serviceName ? (
+              <p className="text-sm text-destructive">{errors.serviceName}</p>
+            ) : null}
           </div>
 
           {/* Actions */}
@@ -301,7 +236,7 @@ export function AddCustomerModal({
               disabled={isSubmitting}
             >
               <Plus className="w-4 h-4 mr-2" />
-              {isSubmitting ? "Đang tạo..." : "Thêm khách hàng"}
+              {isSubmitting ? "Đang thêm..." : "Thêm khách hàng"}
             </Button>
           </div>
         </form>

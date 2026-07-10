@@ -21,7 +21,10 @@ import {
   seedCustomersWithClient,
   updateCustomer,
 } from "@/modules/customers/services/customer-services"
-import type { Customer } from "@/modules/customers/services/types/customer-types"
+import type {
+  Customer,
+  CustomerFormValues,
+} from "@/modules/customers/services/types/customer-types"
 
 export default function CustomersPage() {
   const [customers, setCustomers] = useState<Customer[]>([])
@@ -52,11 +55,11 @@ export default function CustomersPage() {
   }, [refreshCustomers])
 
   const handleAddCustomer = useCallback(
-    async (newCustomer: Customer) => {
-      await createCustomer(newCustomer)
-      await refreshCustomers()
+    async (values: CustomerFormValues) => {
+      const created = await createCustomer(values)
+      setCustomers((prev) => [...prev, created])
     },
-    [refreshCustomers]
+    []
   )
 
   const handleUpdateCustomer = useCallback(async (customer: Customer) => {
@@ -121,9 +124,7 @@ export default function CustomersPage() {
       <div className="flex flex-1 flex-col space-y-6 px-4 md:px-6">
         <CustomerStatCards
           total={stats.total}
-          education={stats.education}
-          sales={stats.sales}
-          marketing={stats.marketing}
+          topServices={stats.topServices}
         />
 
         <Card>

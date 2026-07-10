@@ -15,7 +15,6 @@ import {
 } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
 import {
   Select,
   SelectContent,
@@ -23,22 +22,17 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import {
-  categories,
-  genders,
-} from "@/modules/customers/services/customer-mock-data"
+import { serviceOptions } from "@/modules/customers/services/customer-mock-data"
 import type { Customer } from "@/modules/customers/services/types/customer-types"
 
 const editFormSchema = z.object({
-  name: z.string().min(1, "Tên khách hàng là bắt buộc"),
-  category: z.enum(["education", "sales", "marketing", "worker", "other"], {
-    message: "Vui lòng chọn danh mục",
-  }),
+  fullName: z.string().min(2, "Họ và tên phải có ít nhất 2 ký tự"),
   email: z.email("Email không hợp lệ"),
-  phone: z.string().optional().default(""),
-  gender: z.enum(["male", "female"]).optional().default("male"),
-  address: z.string().optional().default(""),
-  notes: z.string().optional().default(""),
+  phoneNumber: z
+    .string()
+    .min(10, "Số điện thoại phải có ít nhất 10 ký tự")
+    .max(20, "Số điện thoại không được vượt quá 20 ký tự"),
+  serviceName: z.string().min(1, "Vui lòng chọn dịch vụ"),
 })
 
 type EditFormData = z.infer<typeof editFormSchema>
@@ -52,13 +46,10 @@ interface EditCustomerModalProps {
 
 function customerToFormData(customer: Customer): EditFormData {
   return {
-    name: customer.name,
-    category: customer.category,
+    fullName: customer.fullName,
     email: customer.email,
-    phone: customer.phone ?? "",
-    gender: customer.gender ?? "male",
-    address: customer.address ?? "",
-    notes: customer.notes ?? "",
+    phoneNumber: customer.phoneNumber,
+    serviceName: customer.serviceName,
   }
 }
 
@@ -74,7 +65,6 @@ export function EditCustomerModal({
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [isSubmitting, setIsSubmitting] = useState(false)
 
-  // Re-sync form whenever a different customer is passed in.
   React.useEffect(() => {
     if (customer) {
       setFormData(customerToFormData(customer))
@@ -124,9 +114,7 @@ export function EditCustomerModal({
     onOpenChange(false)
   }
 
-  if (!customer || !formData) {
-    return null
-  }
+  if (!customer || !formData) return null
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -134,7 +122,7 @@ export function EditCustomerModal({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Pencil className="h-4 w-4" />
-            Edit Customer
+            Sửa thông tin khách hàng
           </DialogTitle>
           <DialogDescription>
             Cập nhật thông tin khách hàng. Các trường có dấu * là bắt buộc.
@@ -146,65 +134,30 @@ export function EditCustomerModal({
             <p className="text-sm text-destructive">{errors.root}</p>
           ) : null}
 
-          {/* Name */}
+          {/* Họ và tên */}
           <div className="space-y-2">
-            <Label htmlFor="edit-name">
-              Tên khách hàng <span className="text-destructive">*</span>
+            <Label htmlFor="edit-fullName">
+              Họ và tên <span className="text-destructive">*</span>
             </Label>
             <Input
-              id="edit-name"
-              placeholder="Nguyễn Văn A"
-              value={formData.name}
+              id="edit-fullName"
+              placeholder="Ngân Nhi"
+              value={formData.fullName}
               onChange={(e) =>
-                setFormData((prev) => (prev ? { ...prev, name: e.target.value } : prev))
+                setFormData((prev) =>
+                  prev ? { ...prev, fullName: e.target.value } : prev
+                )
               }
-              className={errors.name ? "border-destructive" : ""}
+              className={errors.fullName ? "border-destructive" : ""}
               autoFocus
             />
-            {errors.name ? (
-              <p className="text-sm text-destructive">{errors.name}</p>
+            {errors.fullName ? (
+              <p className="text-sm text-destructive">{errors.fullName}</p>
             ) : null}
           </div>
 
-          {/* Category + Email */}
+          {/* Email + SĐT */}
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-            <div className="space-y-2">
-              <Label htmlFor="edit-category">
-                Danh mục <span className="text-destructive">*</span>
-              </Label>
-              <Select
-                value={formData.category}
-                onValueChange={(value) =>
-                  setFormData((prev) =>
-                    prev
-                      ? { ...prev, category: value as EditFormData["category"] }
-                      : prev
-                  )
-                }
-              >
-                <SelectTrigger
-                  className={`w-full ${errors.category ? "border-destructive" : ""}`}
-                >
-                  <SelectValue placeholder="Chọn danh mục" />
-                </SelectTrigger>
-                <SelectContent>
-                  {categories.map((c) => (
-                    <SelectItem key={c.value} value={c.value}>
-                      <div className="flex items-center">
-                        {c.icon && (
-                          <c.icon className="mr-2 h-4 w-4 text-muted-foreground" />
-                        )}
-                        {c.label}
-                      </div>
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              {errors.category ? (
-                <p className="text-sm text-destructive">{errors.category}</p>
-              ) : null}
-            </div>
-
             <div className="space-y-2">
               <Label htmlFor="edit-email">
                 Email <span className="text-destructive">*</span>
@@ -225,79 +178,58 @@ export function EditCustomerModal({
                 <p className="text-sm text-destructive">{errors.email}</p>
               ) : null}
             </div>
-          </div>
 
-          {/* Phone + Gender */}
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             <div className="space-y-2">
-              <Label htmlFor="edit-phone">Số điện thoại</Label>
+              <Label htmlFor="edit-phoneNumber">
+                Số điện thoại <span className="text-destructive">*</span>
+              </Label>
               <Input
-                id="edit-phone"
+                id="edit-phoneNumber"
                 placeholder="0901234567"
-                value={formData.phone ?? ""}
+                value={formData.phoneNumber}
                 onChange={(e) =>
                   setFormData((prev) =>
-                    prev ? { ...prev, phone: e.target.value } : prev
+                    prev ? { ...prev, phoneNumber: e.target.value } : prev
                   )
                 }
+                className={errors.phoneNumber ? "border-destructive" : ""}
               />
+              {errors.phoneNumber ? (
+                <p className="text-sm text-destructive">{errors.phoneNumber}</p>
+              ) : null}
             </div>
+          </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="edit-gender">Giới tính</Label>
-              <Select
-                value={formData.gender ?? "male"}
-                onValueChange={(value) =>
-                  setFormData((prev) =>
-                    prev
-                      ? { ...prev, gender: value as EditFormData["gender"] }
-                      : prev
-                  )
-                }
+          {/* Dịch vụ */}
+          <div className="space-y-2">
+            <Label htmlFor="edit-serviceName">
+              Dịch vụ quan tâm <span className="text-destructive">*</span>
+            </Label>
+            <Select
+              value={formData.serviceName}
+              onValueChange={(value) =>
+                setFormData((prev) =>
+                  prev ? { ...prev, serviceName: value } : prev
+                )
+              }
+            >
+              <SelectTrigger
+                id="edit-serviceName"
+                className={`w-full ${errors.serviceName ? "border-destructive" : ""}`}
               >
-                <SelectTrigger className="w-full">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {genders.map((g) => (
-                    <SelectItem key={g.value} value={g.value}>
-                      {g.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-
-          {/* Address */}
-          <div className="space-y-2">
-            <Label htmlFor="edit-address">Địa chỉ</Label>
-            <Input
-              id="edit-address"
-              placeholder="123 Lê Lợi, Quận 1, TP.HCM"
-              value={formData.address ?? ""}
-              onChange={(e) =>
-                setFormData((prev) =>
-                  prev ? { ...prev, address: e.target.value } : prev
-                )
-              }
-            />
-          </div>
-
-          {/* Notes */}
-          <div className="space-y-2">
-            <Label htmlFor="edit-notes">Ghi chú</Label>
-            <Textarea
-              id="edit-notes"
-              placeholder="Thông tin thêm về khách hàng..."
-              value={formData.notes ?? ""}
-              onChange={(e) =>
-                setFormData((prev) =>
-                  prev ? { ...prev, notes: e.target.value } : prev
-                )
-              }
-              rows={3}
-            />
+                <SelectValue placeholder="Chọn dịch vụ" />
+              </SelectTrigger>
+              <SelectContent>
+                {serviceOptions.map((s) => (
+                  <SelectItem key={s.value} value={s.value}>
+                    {s.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            {errors.serviceName ? (
+              <p className="text-sm text-destructive">{errors.serviceName}</p>
+            ) : null}
           </div>
 
           {/* Actions */}

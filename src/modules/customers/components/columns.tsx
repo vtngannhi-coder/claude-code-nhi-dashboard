@@ -4,10 +4,6 @@ import type { ColumnDef } from "@tanstack/react-table"
 
 import { Badge } from "@/components/ui/badge"
 import { Checkbox } from "@/components/ui/checkbox"
-import {
-  categories,
-  genders,
-} from "@/modules/customers/services/customer-mock-data"
 import type { Customer } from "@/modules/customers/services/types/customer-types"
 import { DataTableColumnHeader } from "./data-table-column-header"
 import { DataTableRowActions } from "./data-table-row-actions"
@@ -15,6 +11,19 @@ import { DataTableRowActions } from "./data-table-row-actions"
 interface CustomerColumnActions {
   onDeleteCustomer?: (customerId: string) => void | Promise<void>
   onEditCustomer?: (customer: Customer) => void
+}
+
+const serviceBadgeColors: Record<string, string> = {
+  "Bánh Kem Sinh Nhật":
+    "bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300",
+  "Bánh Cưới / Sự Kiện":
+    "bg-rose-100 text-rose-700 dark:bg-rose-900/40 dark:text-rose-300",
+  "Bánh Quà Tặng":
+    "bg-violet-100 text-violet-700 dark:bg-violet-900/40 dark:text-violet-300",
+  "Teabreak Doanh Nghiệp":
+    "bg-sky-100 text-sky-700 dark:bg-sky-900/40 dark:text-sky-300",
+  "Bánh Thủ Công Khác":
+    "bg-slate-100 text-slate-600 dark:bg-slate-800/60 dark:text-slate-300",
 }
 
 export function getCustomerColumns({
@@ -47,34 +56,31 @@ export function getCustomerColumns({
       enableHiding: false,
     },
     {
-      accessorKey: "name",
+      accessorKey: "fullName",
       header: ({ column }) => (
-        <DataTableColumnHeader column={column} title="Name" />
+        <DataTableColumnHeader column={column} title="Họ và Tên" />
       ),
       cell: ({ row }) => (
         <div className="flex space-x-2">
-          <span className="max-w-[160px] md:max-w-[260px] truncate font-medium">
-            {row.getValue("name")}
+          <span className="max-w-[180px] md:max-w-[280px] truncate font-medium">
+            {row.getValue("fullName")}
           </span>
         </div>
       ),
     },
     {
-      accessorKey: "category",
+      accessorKey: "serviceName",
       header: ({ column }) => (
-        <DataTableColumnHeader column={column} title="Category" />
+        <DataTableColumnHeader column={column} title="Dịch Vụ" />
       ),
       cell: ({ row }) => {
-        const category = categories.find(
-          (cat) => cat.value === row.getValue("category")
-        )
-        if (!category) return null
+        const serviceName = row.getValue("serviceName") as string
+        const color = serviceBadgeColors[serviceName] ?? "bg-slate-100 text-slate-600"
 
         return (
-          <div className="flex w-[120px] items-center">
-            <Badge className={category.color} variant="secondary">
-              <category.icon className="mr-1 h-3.5 w-3.5" />
-              {category.label}
+          <div className="flex w-[160px] items-center">
+            <Badge className={color} variant="secondary">
+              {serviceName}
             </Badge>
           </div>
         )
@@ -93,7 +99,7 @@ export function getCustomerColumns({
         return (
           <a
             href={`mailto:${email}`}
-            className="max-w-[180px] md:max-w-[260px] truncate block font-medium text-blue-600 hover:underline dark:text-blue-400"
+            className="max-w-[200px] md:max-w-[280px] truncate block font-medium text-blue-600 hover:underline dark:text-blue-400"
           >
             {email}
           </a>
@@ -101,32 +107,17 @@ export function getCustomerColumns({
       },
     },
     {
-      accessorKey: "phone",
-      header: () => <span className="text-sm sr-only md:not-sr-only">Phone</span>,
+      accessorKey: "phoneNumber",
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="SĐT" />
+      ),
       cell: ({ row }) => {
-        const phone = row.getValue("phone") as string | undefined
+        const phone = row.getValue("phoneNumber") as string | undefined
         return (
-          <span className="text-muted-foreground text-sm hidden md:inline">
+          <span className="text-muted-foreground text-sm">
             {phone || "—"}
           </span>
         )
-      },
-      enableSorting: false,
-    },
-    {
-      accessorKey: "gender",
-      header: () => <span className="text-sm sr-only md:not-sr-only">Gender</span>,
-      cell: ({ row }) => {
-        const gender = genders.find((g) => g.value === row.getValue("gender"))
-        if (!gender) return null
-        return (
-          <div className="hidden md:flex w-[90px] items-center">
-            <span className="text-sm">{gender.label}</span>
-          </div>
-        )
-      },
-      filterFn: (row, id, value) => {
-        return value.includes(row.getValue(id))
       },
       enableSorting: false,
     },
