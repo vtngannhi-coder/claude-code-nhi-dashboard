@@ -24,6 +24,7 @@ const CustomerFormSchema = z.object({
     .string()
     .min(1, "Vui lòng chọn dịch vụ")
     .max(200, "Tên dịch vụ không được vượt quá 200 ký tự"),
+  cakeRequest: z.string().max(500, "Yêu cầu không được vượt quá 500 ký tự").optional().default(""),
 })
 
 export async function OPTIONS() {
@@ -47,7 +48,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const { fullName, email, phoneNumber, serviceName } = parsed.data
+    const { fullName, email, phoneNumber, serviceName, cakeRequest } = parsed.data
 
     const id = `CUS-${Date.now()}`
 
@@ -56,6 +57,7 @@ export async function POST(request: NextRequest) {
       email,
       phoneNumber,
       serviceName,
+      cakeRequest,
       createdAt: serverTimestamp(),
     })
 
@@ -76,6 +78,7 @@ export async function POST(request: NextRequest) {
         `📧 *Email:* ${email}`,
         `📱 *Số điện thoại:* ${phoneNumber}`,
         `🛠️ *Dịch vụ:* ${serviceName}`,
+        ...(cakeRequest ? ["", `📝 *Yêu cầu chi tiết:* ${cakeRequest}`] : []),
         "",
         `📅 *Thời gian:* ${timeStamp}`,
       ].join("\n")
