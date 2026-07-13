@@ -14,7 +14,6 @@ import { CustomerStatCards } from "@/modules/customers/components/customer-stat-
 import { DataTable } from "@/modules/customers/components/data-table"
 import { EditCustomerModal } from "@/modules/customers/components/edit-customer-modal"
 import {
-  createCustomer,
   deleteCustomer,
   getCustomers,
   getCustomerStats,
@@ -56,7 +55,21 @@ export default function CustomersPage() {
 
   const handleAddCustomer = useCallback(
     async (values: CustomerFormValues) => {
-      const created = await createCustomer(values)
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(values),
+      })
+      const data = await res.json()
+
+      if (!data.success) {
+        throw new Error(data.message || "Failed to create customer")
+      }
+
+      const created: Customer = {
+        id: data.id,
+        ...values,
+      }
       setCustomers((prev) => [...prev, created])
     },
     []

@@ -1,4 +1,4 @@
-import { addDoc, collection, serverTimestamp } from "firebase/firestore"
+import { collection, doc, serverTimestamp, setDoc } from "firebase/firestore"
 import { NextRequest, NextResponse } from "next/server"
 import { z } from "zod"
 
@@ -49,7 +49,9 @@ export async function POST(request: NextRequest) {
 
     const { fullName, email, phoneNumber, serviceName } = parsed.data
 
-    await addDoc(collection(db, "customers"), {
+    const id = `CUS-${Date.now()}`
+
+    await setDoc(doc(collection(db, "customers"), id), {
       fullName,
       email,
       phoneNumber,
@@ -71,21 +73,34 @@ export async function POST(request: NextRequest) {
         `🛎️ *Dịch vụ:* ${serviceName}`,
       ].join("\n")
 
-      await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          chat_id: chatId,
-          text: message,
-          parse_mode: "Markdown",
-        }),
-      })
+      const telegramResponse = await fetch(
+        `https://api.telegram.org/bot${botToken}/sendMessage`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            chat_id: chatId,
+            text: message,
+            parse_mode: "Markdown",
+          }),
+        }
+      )
+
+      if (!telegramResponse.ok) {
+        const errorText = await telegramResponse.text()
+        console.error("[Telegram API Error]", errorText)
+      }
+    } else {
+      console.warn(
+        "[Contact API] Telegram env vars missing - skip notification"
+      )
     }
 
     return NextResponse.json(
       {
         success: true,
         message: "Gửi thông tin thành công!",
+        id,
       },
       { status: 201, headers: CORS_HEADERS }
     )
