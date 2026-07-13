@@ -8,6 +8,7 @@ export const customerSchema = z.object({
   email: z.email("Email không hợp lệ"),
   phoneNumber: z.string().min(10, "Số điện thoại phải có ít nhất 10 ký tự"),
   serviceName: z.string().min(1, "Vui lòng chọn dịch vụ"),
+  cakeRequest: z.string().max(500).optional().default(""),
   createdAt: z.union([z.date(), z.string(), z.number()]).optional(),
 })
 
@@ -15,6 +16,6 @@ export type Customer = z.infer<typeof customerSchema>
 
 // Form schema — input layer (no `id`, no `createdAt`).
 export const customerFormSchema = customerSchema
-  .pick({ fullName: true, email: true, phoneNumber: true, serviceName: true })
+  .pick({ fullName: true, email: true, phoneNumber: true, serviceName: true, cakeRequest: true })
 
 export type CustomerFormValues = z.infer<typeof customerFormSchema>
