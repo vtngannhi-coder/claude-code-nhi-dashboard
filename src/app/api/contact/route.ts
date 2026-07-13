@@ -64,13 +64,20 @@ export async function POST(request: NextRequest) {
     const chatId = process.env.TELEGRAM_CHAT_ID
 
     if (botToken && chatId) {
+      const now = new Date()
+      const time = now.toLocaleTimeString("vi-VN", { hour12: false })
+      const date = now.toLocaleDateString("vi-VN")
+      const timeStamp = `${time} ${date}`
+
       const message = [
-        "📬 *Liên hệ mới từ khách hàng*",
+        "📋 *Yêu cầu tư vấn mới*",
         "",
         `👤 *Họ tên:* ${fullName}`,
         `📧 *Email:* ${email}`,
-        `📞 *SĐT:* ${phoneNumber}`,
-        `🛎️ *Dịch vụ:* ${serviceName}`,
+        `📱 *Số điện thoại:* ${phoneNumber}`,
+        `🛠️ *Dịch vụ:* ${serviceName}`,
+        "",
+        `📅 *Thời gian:* ${timeStamp}`,
       ].join("\n")
 
       const telegramResponse = await fetch(
